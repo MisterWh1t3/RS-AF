@@ -3,6 +3,14 @@ Herramienta que permite escanear un rango determinado de IP /24 - Devolviendo y 
 
 <h1>Instalación:</h1>
 
-Pasos previos:
+git clone https://github.com/MisterWh1t3/RS-AF
+
+<h1>Pasos previos:</h1>
+
+pip install -r requirements.txt
+
+Nota: Es fundamental también tener (json, os , platform) // Pero no está añadido en el requirements ya que da conflicto si están ya activos.
+
+Manual
 
 
