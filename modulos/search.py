@@ -25,7 +25,8 @@ def domain_scan(verbose, addr_up):
         except:
             soup = BeautifulSoup(re.text, "html.parser")
         
-        resultado = soup.findAll("a", class_="link-new-ui")
+#        resultado = soup.findAll("a", class_="link-new-ui")  // Cambió un parámetro en Security-Trails
+         resultado = soup.findAll("a", class_="link")
         for domain in resultado:
             if domain not in domain_found:
                 domain_found.append(domain.get_text())
