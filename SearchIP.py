@@ -8,8 +8,7 @@ from modulos import scan, search
 from modulos.archivos import open_file
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Herramienta para el Departamento de AntiFraude - Hispasec ",
-                                     epilog="Especial Agradecimiento a (Ariel B.) por su gran colaboración en este Proyecto.")
+    parser = argparse.ArgumentParser(description="Herramienta para el Departamento de AntiFraude - Hispasec ")
     parser.add_argument("-v", "--verbose", action="store_true", help="Ver detalles del proceso.")
     parser.add_argument("-o", "--open", metavar="File", type=str, help="Abrir y visualizar archivo contenedor de patrones encontrados.")
     parser.add_argument("-f", "--force", action="store_true", help="No realizar prueba de conectividad.")
