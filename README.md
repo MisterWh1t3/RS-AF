@@ -11,6 +11,9 @@ pip install -r requirements.txt
 
 Nota: Es fundamental también tener (json, os , platform) // Pero no está añadido en el requirements ya que da conflicto si están ya activos.
 
-Manual
+-------------------------------------------------------------------------------------------------------------------------------------------
 
+<H2> Extracción URL´s del Archivo .JSON </H2>
+
+cat test-210927.json | grep -o '"http://[^"]*"' 
 
