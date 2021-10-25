@@ -15,14 +15,14 @@ def ip_scan(verbose, force, red, comienzo, fin):
     addr_up = []
     if force:
         for subnet in range(comienzo, fin+1):
-            direccion = red + str(subred)
+            direccion = red + str(subnet)
             addr_up.append(direccion)
         return addr_up
     
     tiempoInicio = datetime.now()
     print("\n[*] El escaneo se está realizando desde",red+str(comienzo),"hasta",red+str(fin))
-    for subred in range(comienzo, fin+1):
-        direccion = red + str(subred)
+    for subnet in range(comienzo, fin+1):
+        direccion = red + str(subnet)
         response = os.popen(ping+" "+direccion).read(200)
         if "ttl" in response.lower():
             addr_up.append(direccion)
