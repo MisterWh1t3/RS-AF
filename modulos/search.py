@@ -2,9 +2,21 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-import requests
+from time import sleep
+#import requests
+from selenium import webdriver
 from bs4 import BeautifulSoup
 from modulos import archivos
+
+options = webdriver.ChromeOptions()
+options.add_argument("--enable-javascript")
+browser = webdriver.Chrome("./modulos/chromedriver", chrome_options=options)
+
+def search_quit():
+    browser.quit()
+
+def __search_web(url):
+    browser.get(url)
 
 def domain_scan(verbose, addr_up):
     domain_found = []
@@ -15,18 +27,25 @@ def domain_scan(verbose, addr_up):
         if verbose:
             print(f"\nBuscando dominios con la IP: {ip}")
         try:
-            re = requests.get(url+ip)
+            #re = requests.get(url+ip)
+            __search_web(url+ip)
+            sleep(5)
+            re = browser.page_source
+            #print(re)
         except:
             print("[Error] - Problema con la conexión a Internet.")
             continue
 
         try:
-            soup = BeautifulSoup(re.text, "lxml")
+            #soup = BeautifulSoup(re.text, "lxml")
+            soup = BeautifulSoup(re, "lxml")
         except:
-            soup = BeautifulSoup(re.text, "html.parser")
+            #soup = BeautifulSoup(re.text, "html.parser")
+            soup = BeautifulSoup(re, "html.parser")
         
-        resultado = soup.findAll("a", class_="link-new-ui")  # Cambió un parámetro en Security-Trails
+        #resultado = soup.findAll("a", class_="link-new-ui")
         resultado = soup.findAll("a", class_="link")
+        #print(f"resulrados: {resultado}")
         for domain in resultado:
             if domain not in domain_found:
                 domain_found.append(domain.get_text())
@@ -55,15 +74,20 @@ def kit_scan(verbose, filename, kit, cont):
         if verbose:
             print(f"\nBuscando patrón en el dominio: {dominio}")
         try:
-            re = requests.get("http://" + dominio)
+            #re = requests.get("http://" + dominio)
+            __search_web("http://" + dominio)
+            sleep(5)
+            re = browser.page_source
         except:
             print(f"[Error] - No se ha podido conectar al dominio {dominio}.")
             continue
         
         try:
-            soup = BeautifulSoup(re.text, "lxml")
+            #soup = BeautifulSoup(re.text, "lxml")
+            soup = BeautifulSoup(re, "lxml")
         except:
-            soup = BeautifulSoup(re.text, "html.parser")
+            #soup = BeautifulSoup(re.text, "html.parser")
+            soup = BeautifulSoup(re, "html.parser")
         
         # Buscar en TITLE
         if soup.find('title') != None and kit.lower() in soup.find('title').get_text().lower():
@@ -90,7 +114,9 @@ def kit_scan(verbose, filename, kit, cont):
         links =  [i.get('src') for i in soup.findAll('img')]\
                   + [i.get('href') for i in soup.findAll('a')]\
                   + [i.get('href') for i in soup.findAll('link')]\
-                  + [re.url]
+                  + [browser.current_url]
+                  #+ [re.url]
+                  
         
         ## Eliminando los path vacios
         links = list(filter(None, links))
