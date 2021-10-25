@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+__author__ = "arielbalo"
+
 import argparse
 import ipaddress
 import json
@@ -28,12 +30,14 @@ def main(args):
             for i in kits[key]:
                 print(f"Patrón en: {i}\n    {kits[key][i]}")
         print()
+        search.search_quit()
         exit()
 
     # Si se parte desde un histórico
     if args.archive:
         kit = input("Ingrese el patrón a buscar: ")
         search.kit_scan(args.verbose, args.archive, kit, False)
+        search.search_quit()
         exit()
     
     # Buscar las IP activas
@@ -41,7 +45,8 @@ def main(args):
         try:
             red = ipaddress.ip_network(args.range, False)
         except:
-            print(f"[Error] - {args.range} no es un rango válido...")
+            print(f"[Error] - {args.range} no es un rango valido...")
+            search.search_quit()
             exit(1)
         
         addr_up = scan.IPrange_scan(args.verbose, args.force, red)
@@ -51,7 +56,8 @@ def main(args):
         try:
             ipaddress.ip_address(ip)
         except:
-            print(f"[Error] - {ip} no es una dirección IP válida.")
+            print(f"[Error] - {ip} no es una dirección IP valida.")
+            search.search_quit()
             exit(1)
 
         ipDividida = ip.split('.')
@@ -71,15 +77,19 @@ def main(args):
         filename = search.domain_scan(args.verbose, addr_up)
     else:
         print("No se encontraron IP activas.  :(")
+        search.search_quit()
         exit(1)
     
     # Buscar patrones en los dominios encontrados
-    patron = input("¿Continuar con la búsqueda de patrones? [y/N]: ").lower()
+    patron = input("¿Continuar con la busqueda de patrones? [y/N]: ").lower()
     if patron == 'y':
         kit = input("Ingrese el patrón a buscar: ")
         search.kit_scan(args.verbose, filename, kit, True)
     else:
+        search.search_quit()
         exit()
+    
+    search.search_quit()
 
 
 if __name__ == '__main__':
