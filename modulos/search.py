@@ -1,22 +1,11 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
+from requests_html import HTMLSession
 from datetime import datetime
-from time import sleep
-#import requests
-from selenium import webdriver
-from bs4 import BeautifulSoup
 from modulos import archivos
 
-options = webdriver.ChromeOptions()
-options.add_argument("--enable-javascript")
-browser = webdriver.Chrome("./modulos/chromedriver", chrome_options=options)
-
-def search_quit():
-    browser.quit()
-
-def __search_web(url):
-    browser.get(url)
+session = HTMLSession()
 
 def domain_scan(verbose, addr_up):
     domain_found = []
@@ -27,28 +16,18 @@ def domain_scan(verbose, addr_up):
         if verbose:
             print(f"\nBuscando dominios con la IP: {ip}")
         try:
-            #re = requests.get(url+ip)
-            __search_web(url+ip)
-            sleep(5)
-            re = browser.page_source
-            #print(re)
+            r = session.get(url+ip)
         except:
             print("[Error] - Problema con la conexión a Internet.")
             continue
-
-        try:
-            #soup = BeautifulSoup(re.text, "lxml")
-            soup = BeautifulSoup(re, "lxml")
-        except:
-            #soup = BeautifulSoup(re.text, "html.parser")
-            soup = BeautifulSoup(re, "html.parser")
         
-        #resultado = soup.findAll("a", class_="link-new-ui")
-        resultado = soup.findAll("a", class_="link")
+        #resultado = r.html.find('a.link-new-ui')
+        resultado = r.html.find('a.link')
+
         #print(f"resulrados: {resultado}")
         for domain in resultado:
             if domain not in domain_found:
-                domain_found.append(domain.get_text())
+                domain_found.append(domain.full_text)
         
     if verbose:
         if domain_found:
@@ -68,64 +47,46 @@ def domain_scan(verbose, addr_up):
     return filename
 
 def kit_scan(verbose, filename, kit, cont):
+    num = 0
     resultados = {}
     dominios = archivos.open_file(verbose, filename, cont)
+    num_dom = len(dominios)
     for dominio in dominios:
+        num += 1
         if verbose:
-            print(f"\nBuscando patrón en el dominio: {dominio}")
+            print(f"\n[{num}/{num_dom}] - Buscando patrón en el dominio: {dominio}")
         try:
-            #re = requests.get("http://" + dominio)
-            __search_web("http://" + dominio)
-            sleep(5)
-            re = browser.page_source
+            r = session.get("http://" + dominio)
         except:
-            print(f"[Error] - No se ha podido conectar al dominio {dominio}.")
+            print(f"[Error] - No se ha podido conectar al dominio {dominio}")
             continue
         
-        try:
-            #soup = BeautifulSoup(re.text, "lxml")
-            soup = BeautifulSoup(re, "lxml")
-        except:
-            #soup = BeautifulSoup(re.text, "html.parser")
-            soup = BeautifulSoup(re, "html.parser")
-        
         # Buscar en TITLE
-        if soup.find('title') != None and kit.lower() in soup.find('title').get_text().lower():
-            title = soup.find('title').get_text()
+        title = r.html.find('title', first=True)
+        if title and kit.lower() in title.full_text.lower():
+            title = title.full_text
             if verbose:
-                print(f"El patrón fue encontrado en el Título: \n{title}\n")
+                print(f"El patrón fue encontrado en el Título:\n {title}\n")
         else:
             title = None
         
         # Buscar en Description
-        metas = soup.findAll('meta')
-        desc = None
-        for meta in metas:
-            if meta.get('name') == 'description':
-                if kit.lower() in meta.get('content').lower():
-                    desc = meta.get('content')
-                    if verbose:
-                        print(f"El patrón fue encontrado en la descripción:\n {desc}\n")
-            else:
-                desc = None
+        desc = r.html.xpath('//meta[@name="description"]/@content', first=True)
+        if desc and kit.lower() in desc.lower():
+            if verbose:
+                print(f"El patrón fue encontrado en la descripción:\n {desc}\n")
+        else:
+            desc = None
         
         # Buscar en PATH
         path = []
-        links =  [i.get('src') for i in soup.findAll('img')]\
-                  + [i.get('href') for i in soup.findAll('a')]\
-                  + [i.get('href') for i in soup.findAll('link')]\
-                  + [browser.current_url]
-                  #+ [re.url]
-                  
-        
-        ## Eliminando los path vacios
-        links = list(filter(None, links))
+        links = r.html.absolute_links
         
         for link in links:
             if kit.lower() in link.lower():
                 path.append(link)
                 if verbose:
-                    print(f"El patrón fue encontrado en el path: \n{link}\n")
+                    print(f"El patrón fue encontrado en el path:\n{link}\n")
 
         if title or desc or path:
             resultados[dominio] = {}
