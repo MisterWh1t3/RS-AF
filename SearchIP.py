@@ -9,7 +9,8 @@ from modulos import scan, search
 from modulos.archivos import open_file
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Herramienta para el Departamento de AntiFraude - Hispasec ")
+    parser = argparse.ArgumentParser(description="Herramienta para el trabajo de antifraude. Idea original de @MisterWh1t3",
+                                     epilog="Más información en https://github.com/arielbalo/SearchIP/\n")
     parser.add_argument("-v", "--verbose", action="store_true", help="Ver detalles del proceso.")
     parser.add_argument("-o", "--open", metavar="File", type=str, help="Abrir y visualizar archivo contenedor de patrones encontrados.")
     parser.add_argument("-f", "--force", action="store_true", help="No realizar prueba de conectividad.")
@@ -29,14 +30,12 @@ def main(args):
             for i in kits[key]:
                 print(f"Patrón en: {i}\n    {kits[key][i]}")
         print()
-        search.search_quit()
         exit()
 
     # Si se parte desde un histórico
     if args.archive:
         kit = input("Ingrese el patrón a buscar: ")
         search.kit_scan(args.verbose, args.archive, kit, False)
-        search.search_quit()
         exit()
     
     # Buscar las IP activas
@@ -45,7 +44,6 @@ def main(args):
             red = ipaddress.ip_network(args.range, False)
         except:
             print(f"[Error] - {args.range} no es un rango valido...")
-            search.search_quit()
             exit(1)
         
         addr_up = scan.IPrange_scan(args.verbose, args.force, red)
@@ -56,7 +54,6 @@ def main(args):
             ipaddress.ip_address(ip)
         except:
             print(f"[Error] - {ip} no es una dirección IP valida.")
-            search.search_quit()
             exit(1)
 
         ipDividida = ip.split('.')
@@ -76,7 +73,6 @@ def main(args):
         filename = search.domain_scan(args.verbose, addr_up)
     else:
         print("No se encontraron IP activas.  :(")
-        search.search_quit()
         exit(1)
     
     # Buscar patrones en los dominios encontrados
@@ -85,10 +81,8 @@ def main(args):
         kit = input("Ingrese el patrón a buscar: ")
         search.kit_scan(args.verbose, filename, kit, True)
     else:
-        search.search_quit()
         exit()
     
-    search.search_quit()
 
 
 if __name__ == '__main__':
