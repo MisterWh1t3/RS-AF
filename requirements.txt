@@ -1,8 +1,6 @@
 argparse
 ipaddress
+json
+platform
 datetime
-time
-requests
-selenium
-beautifulsoup4
-lxml
+requests-html
