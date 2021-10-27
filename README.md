@@ -10,6 +10,11 @@ git clone https://github.com/MisterWh1t3/RS-AF
 pip install -r requirements.txt
 
 Nota: Es fundamental también tener (json, os , platform) // Pero no está añadido en el requirements ya que da conflicto si están ya activos.
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+<H2> Buscar Distinto patrón en dominios.txt </H2>
+
+python3 SearchIP.py -a ./resultados/dominios-211027.txt
 
 -------------------------------------------------------------------------------------------------------------------------------------------
 
